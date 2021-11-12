@@ -64,7 +64,7 @@ def parse_qqqr_barcode(barcode):
     log.info('parse_qqqr_barcode')
     play_buzz()
     if barcode.type != 'QRCODE':
-        raise Exception('Unexpected barcode type: %s' % barcode.type)
+        return
 
     data = barcode.data.decode('utf-8')
     log.info('Found barcode: %s: %s' % (barcode.type, data))
@@ -87,11 +87,7 @@ def parse_qqqr_barcode(barcode):
         play_album(data)
     elif data.startswith('https://open.spotify.com/playlist/'):
         play_playlist(data)
-    elif not data.startswith(QQQR_ROOT_URI):
-        raise Exception('Unexpected QR data: %s' % data)
 
-    track_id = data[len(QQQR_ROOT_URI):]
-    return track_id
     
 def call_ruby_mopidy(command, options):
     subprocess.call(['ruby', '/home/pi/ruby-mopidy/ruby-mopidy.rb', '--command={command}'.format(command=command), '--options={options}'.format(options=options)])
@@ -109,11 +105,11 @@ def pause():
     log.info('Pausing')
     
 def volume_up():
-    subprocess.call(['ruby', 'ruby-mopidy.rb', '--command=volume', '--options=up'])
+    call_ruby_mopidy('volume', 'up')
     log.info('Volume going up')
 
 def volume_down():
-    subprocess.call(['ruby', 'ruby-mopidy.rb', '--command=volume', '--options=down'])
+    call_ruby_mopidy('volume', 'down')
     log.info('Volume going down')
 
 def play_song(data):
@@ -145,29 +141,16 @@ def main():
     vs = init()
 
     while True:
-        #play_buzz()
         barcodes = scan_barcodes_loop(vs, tmax=1200)
         if not barcodes:
             # Timed out without detecting a barcode.
             break
 
-        #play_buzz()
-
         if len(barcodes) > 1:
             log.warning('detected multiple barcodes in frame')
 
         track_id = parse_qqqr_barcode(barcodes[0])
-        #gmusicplay.play_gmusic_track_blocking(track_id)
-        #artist, title = gmusicplay.get_gmusic_track_info(track_id)
-        #print((artist, title))
-        #(sartist, stitle, uri) = spotifyplay.find_spotify_track(artist, title)
-        #if uri is None:
-            #print('No spotify track found')
-            #continue
-        print('Matched spotify track: %s - %s') #% (sartist, title))
-        #spotifyplay.play_spotify_track(uri)
-
-        time.sleep(3)
+        time.sleep(1)
 
     cleanup(vs)
 
