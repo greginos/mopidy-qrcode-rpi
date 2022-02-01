@@ -35,6 +35,9 @@ class RubyMopidy
       elsif @options[:options] == 'stop'
         p 'stop'
         Mopidy::Playback.stop
+      elsif @options[:options] == 'shuffle'
+        p 'shuffle songs'
+        Mopidy::Tracklist.shuffle #`shuffle': wrong number of arguments (given 0, expected 2) (ArgumentError)
       end
     when 'album'
       play_album(@options[:options])
@@ -44,6 +47,8 @@ class RubyMopidy
       play_track(@options[:options])
     when 'episode'
       play_track(@options[:options])
+    when 'webradio'
+      play_webradio(@options[:options])
     end
   end
 
@@ -71,6 +76,13 @@ class RubyMopidy
     stop
     Mopidy::Tracklist.clear
     Mopidy::Tracklist.add_uri("spotify:playlist:#{playlist_uri}")
+    play
+  end
+  
+  def play_webradio(uri)
+    stop
+    Mopidy::Tracklist.clear
+    Mopidy::Tracklist.add_uri(uri)
     play
   end
 

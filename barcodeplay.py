@@ -93,6 +93,10 @@ def parse_qqqr_barcode(barcode):
         resume()
     elif data == 'pause':
         pause()
+    elif data == 'shuffle':
+        shuffle()
+    elif data.startswith('https://www.radiopommedapi.com/'):
+        play_web_radio(data)
     elif data.startswith('https://open.spotify.com/track/'):
         play_song(data)
     elif data.startswith('https://open.spotify.com/episode/'):
@@ -117,6 +121,10 @@ def resume():
 def pause():
     call_ruby_mopidy('navigation', 'pause')
     log.info('Pausing')
+
+def shuffle():
+    call_ruby_mopidy('navigation', 'shuffle')
+    log.info('Shuffling songs')
     
 def volume_up():
     call_ruby_mopidy('volume', 'up')
@@ -141,6 +149,10 @@ def play_episode(data):
 def play_album(data):
     log.info('Playing album')
     call_ruby_mopidy('album', data.split('album/')[1].split('?')[0])
+
+def play_web_radio(data):
+    log.info('Playing radio')
+    call_ruby_mopidy('webradio', data)
 
 def play_playlist(data):
     log.info('Playing playlist')
